@@ -9,8 +9,8 @@ type config struct {
 	Port       string
 }
 
-func GetConfig() config {
-	return config{
+func GetConfig() *config {
+	return &config{
 		DockerHost: os.Getenv("DOCKER_HOST"),
 		Port:       os.Getenv("PORT"),
 	}
