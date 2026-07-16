@@ -4,15 +4,18 @@ import (
 	"context"
 	"docker-proxy/src/core"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net"
 	"net/http"
 )
 
 type Container struct {
-	ID     string   `json:"Id"`
-	Names  []string `json:"Names"`
-	Image  string   `json:"Image"`
-	Status string   `json:"Status"`
+	ID      string   `json:"id"`
+	Names   []string `json:"names"`
+	Image   string   `json:"image"`
+	ImageID string   `json:"image_id"`
+	Status  string   `json:"status"`
 }
 
 type Dockerd struct {
@@ -34,23 +37,42 @@ func NewDockerdCli() *Dockerd {
 	}
 }
 
-func (d *Dockerd) ContainerList() []Container {
+func (d *Dockerd) Containers() []Container {
 
-	req, err := http.NewRequest("GET", "http://docker/containers/json?all=true", nil)
+	resp, err := d.UnixCli.Get("http://docker/containers/json?all=true")
 	if err != nil {
 		panic(err)
 	}
-
-	resp, err := d.UnixCli.Do(req)
-	if err != nil {
-		panic(err)
-	}
-
 	defer resp.Body.Close()
+
 	var data []Container
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		panic(err)
 	}
 
 	return data
+}
+
+func (d *Dockerd) Images() {
+
+}
+
+func (d *Dockerd) Start(id string) error {
+	url := fmt.Sprintf("http://docker/containers/%s/start", id)
+	resp, err := d.UnixCli.Post(url, "", nil)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("docker error: %s", body)
+	}
+
+	return nil
+}
+
+func (d *Dockerd) Stop(id string) {
+
 }

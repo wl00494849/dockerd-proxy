@@ -8,7 +8,6 @@ import (
 )
 
 func Ping(w http.ResponseWriter, r *http.Request) {
-
 	resp := map[string]string{
 		"status":  http.StatusText(200),
 		"message": "pong",
@@ -18,8 +17,21 @@ func Ping(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("pong")
 }
 
-func DockerList(w http.ResponseWriter, r *http.Request) {
-	lst := dockerd.NewDockerdCli().ContainerList()
+func ContainerList(w http.ResponseWriter, r *http.Request) {
+	lst := dockerd.NewDockerdCli().Containers()
 	httpx.NewWirter(w).JSON(200, lst)
-	fmt.Println(lst)
+}
+
+func ContainerStart(w http.ResponseWriter, r *http.Request) {
+	imageId := r.PostFormValue("image_id")
+	err := dockerd.NewDockerdCli().Start(imageId)
+	if err != nil {
+		panic(err)
+	}
+
+	httpx.NewWirter(w).JSON(200, "")
+}
+
+func ContainerStop(w http.ResponseWriter, r *http.Request) {
+
 }
