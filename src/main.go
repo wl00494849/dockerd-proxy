@@ -3,7 +3,7 @@ package main
 import (
 	"docker-proxy/src/core"
 	"docker-proxy/src/routers"
-	"encoding/json"
+	apiv1 "docker-proxy/src/routers/api_v1"
 	"fmt"
 	"net/http"
 
@@ -15,21 +15,11 @@ func init() {
 }
 
 func main() {
-	config := core.GetConfig()
+	config := core.LoadConfig()
 	r := routers.New()
 
-	r.GET("/ping", func(w http.ResponseWriter, r *http.Request) {
-
-		resp := map[string]string{
-			"OK":      "true",
-			"Message": "pong",
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(resp)
-		fmt.Println("pong")
-	})
+	r.GET("/ping", apiv1.Ping)
+	r.GET("/list", apiv1.DockerList)
 
 	fmt.Println("Server start success on " + config.Port)
 	if err := http.ListenAndServe(config.Port, r); err != nil {
