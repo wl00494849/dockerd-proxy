@@ -10,12 +10,18 @@ import (
 	"net/http"
 )
 
-type Container struct {
-	ID      string   `json:"id"`
-	Names   []string `json:"names"`
-	Image   string   `json:"image"`
-	ImageID string   `json:"image_id"`
-	Status  string   `json:"status"`
+type ImageInfo struct {
+	ID          string   `json:"ID"`
+	RepoTags    []string `json:"RepoTags"`
+	RepoDigests []string `json:"RepoDigests"`
+}
+
+type ContainerInfo struct {
+	ID      string   `json:"Id"`
+	Names   []string `json:"Names"`
+	Image   string   `json:"Image"`
+	ImageID string   `json:"Imageid"`
+	Status  string   `json:"Status"`
 }
 
 type Dockerd struct {
@@ -37,15 +43,15 @@ func NewDockerdCli() *Dockerd {
 	}
 }
 
-func (d *Dockerd) Containers() []Container {
+func (dock *Dockerd) Containers() []ContainerInfo {
 
-	resp, err := d.UnixCli.Get("http://docker/containers/json?all=true")
+	resp, err := dock.UnixCli.Get("http://docker/containers/json?all=true")
 	if err != nil {
 		panic(err)
 	}
 	defer resp.Body.Close()
 
-	var data []Container
+	var data []ContainerInfo
 	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
 		panic(err)
 	}
@@ -53,13 +59,26 @@ func (d *Dockerd) Containers() []Container {
 	return data
 }
 
-func (d *Dockerd) Images() {
+func (dock *Dockerd) Images() []ImageInfo {
 
+	resp, err := dock.UnixCli.Get("http://docker/images/json?all=true")
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	var data []ImageInfo
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		panic(err)
+	}
+
+	return data
 }
 
-func (d *Dockerd) Start(id string) error {
+func (dock *Dockerd) Start(id string) error {
+
 	url := fmt.Sprintf("http://docker/containers/%s/start", id)
-	resp, err := d.UnixCli.Post(url, "", nil)
+	resp, err := dock.UnixCli.Post(url, "", nil)
 	if err != nil {
 		panic(err)
 	}
@@ -73,6 +92,19 @@ func (d *Dockerd) Start(id string) error {
 	return nil
 }
 
-func (d *Dockerd) Stop(id string) {
+func (dock *Dockerd) Stop(id string) error {
 
+	url := fmt.Sprintf("http://docker/containers/%s/stop", id)
+	resp, err := dock.UnixCli.Post(url, "", nil)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusNoContent {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("docker error: %s", body)
+	}
+
+	return nil
 }
