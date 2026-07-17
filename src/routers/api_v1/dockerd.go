@@ -8,16 +8,6 @@ import (
 	"net/http"
 )
 
-type ResponseMsg struct {
-	IsSuccess bool   `json:"is_sucess"`
-	Message   string `json:"message"`
-}
-
-type ContainerRequest struct {
-	ImageID  string `json:"image_id"`
-	RepoTags string `json:"tags"`
-}
-
 func ContainerList(w http.ResponseWriter, r *http.Request) {
 	lst := dockerd.NewDockerdCli().Containers()
 	httpx.NewWirter(w).JSON(200, lst)
