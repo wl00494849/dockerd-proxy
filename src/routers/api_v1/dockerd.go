@@ -10,12 +10,12 @@ import (
 
 func ContainerList(w http.ResponseWriter, r *http.Request) {
 	lst := dockerd.NewDockerdCli().Containers()
-	httpx.NewWirter(w).JSON(200, lst)
+	httpx.NewWriter(w).JSON(200, lst)
 }
 
 func ImageList(w http.ResponseWriter, r *http.Request) {
 	lst := dockerd.NewDockerdCli().Images()
-	httpx.NewWirter(w).JSON(200, lst)
+	httpx.NewWriter(w).JSON(200, lst)
 }
 
 func ContainerStart(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +31,7 @@ func ContainerStart(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	httpx.NewWirter(w).JSON(200, &ResponseMsg{
+	httpx.NewWriter(w).JSON(200, &ResponseMsg{
 		IsSuccess: true,
 		Message:   fmt.Sprintf("Success Start:%s", param.RepoTags),
 	})
@@ -50,7 +50,7 @@ func ContainerStop(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	httpx.NewWirter(w).JSON(200, &ResponseMsg{
+	httpx.NewWriter(w).JSON(200, &ResponseMsg{
 		IsSuccess: true,
 		Message:   fmt.Sprintf("Success stop:%s", param.RepoTags),
 	})

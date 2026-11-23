@@ -6,7 +6,7 @@ import (
 )
 
 func Ping(w http.ResponseWriter, r *http.Request) {
-	httpx.NewWirter(w).JSON(200, &ResponseMsg{
+	httpx.NewWriter(w).JSON(200, &ResponseMsg{
 		IsSuccess: true,
 		Message:   "pong",
 	})

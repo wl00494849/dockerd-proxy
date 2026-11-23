@@ -5,17 +5,17 @@ import (
 	"net/http"
 )
 
-type Wirter struct {
+type Writer struct {
 	rw http.ResponseWriter
 }
 
-func NewWirter(w http.ResponseWriter) *Wirter {
-	return &Wirter{
+func NewWriter(w http.ResponseWriter) *Writer {
+	return &Writer{
 		rw: w,
 	}
 }
 
-func (w *Wirter) JSON(status int, data any) {
+func (w *Writer) JSON(status int, data any) {
 	w.rw.Header().Set("Content-Type", "application/json")
 	w.rw.WriteHeader(status)
 
